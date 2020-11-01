@@ -131,6 +131,30 @@ const mqsh = new MqttSmarthome(config.mqttUrl, {
 mqsh.on('connect', () => {
     log.info('mqsh < connected', config.mqttUrl);
     mqsh.publish(config.name + '/maintenance/online', true, {retain: true});
+
+    mqsh.subscribe(config.name + '/set/fan/enabled', (_, input) => {
+        const data = {
+            fpwr: input ? 'ON' : 'OFF'
+        };
+
+        log.debug('dyson >', data);
+
+        dysonClient.publish(config.productType + '/' + config.serialNumber + '/command', JSON.stringify({
+            msg: 'STATE-SET',
+            time: new Date().toISOString(),
+            data
+        }));
+    });
+
+    mqsh.subscribe(config.name + '/set/fan/speed', (_, input) => {
+        dysonClient.publish(config.productType + '/' + config.serialNumber + '/command', JSON.stringify({
+            msg: 'STATE-SET',
+            time: new Date().toISOString(),
+            data: {
+                fpwr: input ? 'ON' : 'OFF'
+            }
+        }));
+    });
 });
 
 const dysonClient = Mqtt.connect('mqtt://' + config.ipAddress, {
@@ -184,7 +208,6 @@ dysonClient.on('message', (topic, payload) => {
             mqsh.publish(config.name + '/status/temperature', {
                 val: (Number.parseInt(rawTemperature, 10) / 10) - 273.15,
                 unit: '°C',
-                settable: false,
                 ts
             }, {retain: true});
         }
@@ -195,7 +218,6 @@ dysonClient.on('message', (topic, payload) => {
                 val: Number.parseInt(rawHumidity, 10),
                 unit: '%',
                 range: {min: 0, max: 100, steps: 1},
-                settable: false,
                 ts
             }, {retain: true});
         }
@@ -242,44 +264,129 @@ dysonClient.on('message', (topic, payload) => {
     }
 
     if (content.msg === 'CURRENT-STATE') {
-        try {
-            const fanEnabled = content['product-state']?.fpwr === 'ON';
-            const fanActualState = content['product-state']?.fnst === 'FAN';
-            const rawFanSpeed = content['product-state']?.fnsp;
-
-            mqsh.publish(config.name + '/status/fan', {
-                val: fanEnabled && fanActualState,
-                speed: {
-                    val: (rawFanSpeed === 'AUTO') ? 0 : Number.parseInt(rawFanSpeed, 10),
-                    enum: ['AUTO', ...Array.from({length: 10}, (v, k) => k + 1)]
-                },
-                ts
-            }, {retain: true});
-        } catch (error) {
-            log.error(error);
-        }
-
-        try {
-            mqsh.publish(config.name + '/status/auto-mode/purify', {
-                val: content['product-state']?.auto === 'ON',
-                ts
-            }, {retain: true});
-        } catch (error) {
-            log.error(error);
-        }
-
-        try {
-            mqsh.publish(config.name + '/status/auto-mode/humidify', {
-                val: content['product-state']?.haut === 'ON',
-                ts
-            }, {retain: true});
-        } catch (error) {
-            log.error(error);
-        }
+        processIncomingMessage(content['product-state'], ts);
     }
 
     if (content.msg === 'STATE-CHANGE') {
+        const data = {};
+        for (const [key, value] of Object.entries(content['product-state'])) {
+            data[key] = value[1];
+        }
 
+        processIncomingMessage(data, ts);
     }
 });
 
+function processIncomingMessage(input, ts = Date.now()) {
+    const fanEnabled = input.fpwr === 'ON';
+    const fanActualState = input.fnst === 'FAN';
+    const fanNightMode = input.nmod === 'ON';
+
+    const flowDirection = mapValue(input.fdir, [
+        {in: 'ON', out: 1},
+        {in: 'OFF', out: 0}
+    ]);
+    const oscillatorEnabled = mapValue(input.oson, [
+        {in: 'ON', out: true},
+        {in: 'OFF', out: false},
+        {in: 'OION', out: true},
+        {in: 'OIOF', out: false}
+    ]);
+    const oscillatorActualState = mapValue(input.oscs, [
+        {in: 'ON', out: 1},
+        {in: 'OFF', out: 0},
+        {in: 'IDLE', out: 2}
+    ]);
+    const oscillatorMode = mapValue(input.ancp, [
+        {in: '45', out: 0},
+        {in: '90', out: 1},
+        {in: 'BRZE', out: 2}
+    ]);
+
+    const rawFanSpeed = input.fnsp;
+
+    mqsh.publish(config.name + '/status/fan/enabled', {
+        val: fanEnabled,
+        ts
+    }, {retain: true});
+    mqsh.publish(config.name + '/status/fan/actual-state', {
+        val: fanActualState,
+        ts
+    }, {retain: true});
+    mqsh.publish(config.name + '/status/fan/speed', {
+        val: (rawFanSpeed === 'AUTO') ? 0 : Number.parseInt(rawFanSpeed, 10),
+        enum: ['Auto', ...Array.from({length: 10}, (v, k) => String(k + 1))],
+        ts
+    }, {retain: true});
+    mqsh.publish(config.name + '/status/fan/night-mode', {
+        val: fanNightMode,
+        ts
+    }, {retain: true});
+
+    mqsh.publish(config.name + '/status/fan/direction', {
+        val: flowDirection,
+        enum: ['Back', 'Front'],
+        ts
+    }, {retain: true});
+    mqsh.publish(config.name + '/status/fan/swing/enabled', {
+        val: oscillatorEnabled,
+        ts
+    }, {retain: true});
+    mqsh.publish(config.name + '/status/fan/swing/actual-state', {
+        val: oscillatorActualState,
+        enum: ['Off', 'On', 'Idle'],
+        ts
+    }, {retain: true});
+    mqsh.publish(config.name + '/status/fan/swing/mode', {
+        val: oscillatorMode,
+        enum: ['45°', '90°', 'Breeze'],
+        ts
+    }, {retain: true});
+
+    mqsh.publish(config.name + '/status/purify/auto-mode', {
+        val: input.auto === 'ON',
+        ts
+    }, {retain: true});
+
+    mqsh.publish(config.name + '/status/humidify/enabled', {
+        val: mapValue(input.hume, [
+            {in: 'OFF', out: false},
+            {in: 'HUMD', out: true}
+        ]),
+        ts
+    }, {retain: true});
+    mqsh.publish(config.name + '/status/humidify/actual-state', {
+        val: mapValue(input.msta, [
+            {in: 'OFF', out: false},
+            {in: 'HUMD', out: true}
+        ]),
+        ts
+    }, {retain: true});
+    mqsh.publish(config.name + '/status/humidify/target', {
+        val: Number.parseInt(input.humt, 10),
+        unit: '%',
+        ts
+    }, {retain: true});
+    mqsh.publish(config.name + '/status/humidify/auto-mode', {
+        val: input.haut === 'ON',
+        ts
+    }, {retain: true});
+
+    mqsh.publish(config.name + '/maintenance/filter-life', {
+        val: Number.parseInt(input.hflr, 10),
+        unit: '%',
+        ts
+    }, {retain: true});
+}
+
+function mapValue(input, range) {
+    for (const candidate of range) {
+        if (typeof candidate.in === 'object') {
+            if ((input >= candidate.in.min) && (input < candidate.in.max)) {
+                return candidate.out;
+            }
+        } else if (input === candidate.in) {
+            return candidate.out;
+        }
+    }
+}
