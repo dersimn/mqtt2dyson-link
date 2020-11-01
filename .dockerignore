@@ -1,0 +1,15 @@
+/node_modules
+/docs
+/contrib
+README.md
+README-internal.md
+
+## Git
+/.git
+/.gitignore
+
+## macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
