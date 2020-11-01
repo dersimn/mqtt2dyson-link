@@ -4,6 +4,7 @@ const pkg = require('./package.json');
 const log = require('yalm');
 const MqttSmarthome = require('mqtt-smarthome-connect');
 const Mqtt = require('mqtt');
+const Yatl = require('yetanothertimerlibrary');
 
 const environmentVariablesPrefix = pkg.name.replace(/[^a-zA-Z\d]/, '_').toUpperCase();
 const config = require('yargs')
@@ -16,6 +17,7 @@ const config = require('yargs')
     .describe('password')
     .describe('ip-address')
     .describe('product-type')
+    .describe('polling-interval', 'Polling interval (in s) for collecting status updates.')
     .alias({
         h: 'help',
         v: 'verbosity',
@@ -27,7 +29,8 @@ const config = require('yargs')
     })
     .default({
         name: 'dyson',
-        'mqtt-url': 'mqtt://127.0.0.1'
+        'mqtt-url': 'mqtt://127.0.0.1',
+        'polling-interval': 60
     })
     .demandOption([
         'ip-address',
@@ -212,6 +215,13 @@ const dysonClient = Mqtt.connect('mqtt://' + config.ipAddress, {
 });
 log.debug('dyson > connect');
 
+const pollingTimer = new Yatl.Timer(() => {
+    dysonClient.publish(config.productType + '/' + config.serialNumber + '/command', JSON.stringify({
+        msg: 'REQUEST-CURRENT-STATE',
+        time: new Date().toISOString()
+    }));
+}, config.pollingInterval * 1000);
+
 dysonClient.on('connect', () => {
     log.info('dyson < connected');
 
@@ -221,26 +231,28 @@ dysonClient.on('connect', () => {
     // Subscribes to the status topic to receive updates
     dysonClient.subscribe(config.productType + '/' + config.serialNumber + '/status/current', () => {
         // Sends an initial request for the current state
-        dysonClient.publish(config.productType + '/' + config.serialNumber + '/command', JSON.stringify({
-            msg: 'REQUEST-CURRENT-STATE',
-            time: new Date().toISOString()
-        }));
+        pollingTimer.restart().exec();
     });
 });
 dysonClient.on('error', error => {
     log.error('dyson -', error);
+    pollingTimer.stop();
 });
 dysonClient.on('reconnect', () => {
     log.debug('dyson - reconnect');
+    pollingTimer.stop();
 });
 dysonClient.on('close', () => {
     log.debug('dyson - close');
+    pollingTimer.stop();
 });
 dysonClient.on('offline', () => {
     log.debug('dyson - offline');
+    pollingTimer.stop();
 });
 dysonClient.on('end', () => {
     log.debug('dyson - end');
+    pollingTimer.stop();
 });
 dysonClient.on('message', (topic, payload) => {
     const content = JSON.parse(payload);
