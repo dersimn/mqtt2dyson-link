@@ -5,10 +5,28 @@ Tested with:
 
 ## Usage
 
+Get your local credentials with your Dyson account:
+
+    docker run --rm --entrypoint "node" dersimn/mqtt2dyson-link cloud \
+        --email simon@christmann.email \
+        --password secret_password_1234 \
+        --country DE
+
+Output will show something like
+
+    {
+        Name: 'Simon‘s Zimmer',
+        'Product Type': '358',
+        'Serial / Username': '…',
+        Password: '…'
+    }
+
+Then run with the given data from above:
+
     docker run -d dersimn/mqtt2dyson-link \
         --ip-address 10.1.1.242 \
-        --serial-number "" \
-        --password "" \
+        --serial-number "…" \
+        --password "…" \
         --product-type 358 \
         --mqtt-url mqtt://10.1.1.100
 
