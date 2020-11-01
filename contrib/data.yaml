@@ -1,0 +1,117 @@
+---
+pages:
+  - pageid: mainpage
+    pagetitle: Dyson Testing
+    sections:
+      - sectiontitle: Basics
+        items:
+          - title: On/Off
+            type: switch
+            topic: dyson//fan/enabled
+          - title: Actual State
+            type: text
+            topic: dyson//fan/actual-state
+          - title: Fan Speed
+            type: select
+            topic: dyson//fan/speed
+            selectOptions:
+              - label: 'Auto'
+                value: 0
+              - label: '1'
+                value: 1
+              - label: '2'
+                value: 2
+              - label: '3'
+                value: 3
+              - label: '4'
+                value: 4
+              - label: '5'
+                value: 5
+              - label: '6'
+                value: 6
+              - label: '7'
+                value: 7
+              - label: '8'
+                value: 8
+              - label: '9'
+                value: 9
+              - label: '10'
+                value: 10
+          - title: Night Mode
+            type: switch
+            topic: dyson//fan/night-mode
+          - title: Auto Mode
+            type: switch
+            topic: dyson//purify/auto-mode
+      - sectiontitle: Swing
+        items:
+          - title: Direction
+            type: button
+            topic: dyson//fan/direction
+            buttons:
+              - label: Front
+                value: 1
+              - label: Back
+                value: 0
+          - title: On/Off
+            type: switch
+            topic: dyson//fan/swing/enabled
+          - title: Actual State
+            type: text
+            topic: dyson//fan/swing/actual-state
+            transform: return ['Off', 'On', 'Idle'][value];
+          - title: Mode
+            type: select
+            topic: dyson//fan/swing/mode
+            selectOptions:
+              - label: '45°'
+                value: 0
+              - label: '90°'
+                value: 1
+              - label: 'Breeze'
+                value: 2
+      - sectiontitle: Humidifyer
+        items:
+          - title: On/Off
+            type: switch
+            topic: dyson//humidify/enabled
+          - title: Actual State
+            type: text
+            topic: dyson//humidify/actual-state
+          - title: Auto Mode
+            type: switch
+            topic: dyson//humidify/auto-mode
+          - title: Target
+            type: text
+            topic: dyson/status/humidify/target
+            transform: return Number(value).toFixed(0) + ' %'
+          - title: Target
+            type: slider
+            topic: dyson//humidify/target
+            sliderMinValue: 30
+            sliderMaxValue: 70
+            sliderStepValue: 1
+      - sectiontitle: Air Quality
+        items:
+          - title: Temperature
+            type: text
+            topic: dyson/status/temperature
+            transform: return Number(value).toFixed(0) + '°C'
+          - title: Humidity
+            type: text
+            topic: dyson/status/humidity
+            transform: return Number(value).toFixed(0) + ' %'
+          - title: PM 2.5
+            type: text
+            topic: dyson/status/air-quality/pm25
+            transform: return Number(value).toFixed(0) + ' µg/m³'
+          - title: PM 10
+            type: text
+            topic: dyson/status/air-quality/pm10
+            transform: return Number(value).toFixed(0) + ' µg/m³'
+          - title: VOC
+            type: text
+            topic: dyson/status/air-quality/va10
+          - title: NOx
+            type: text
+            topic: dyson/status/air-quality/noxl
