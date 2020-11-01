@@ -176,6 +176,8 @@ dysonClient.on('message', (topic, payload) => {
     log.debug('dyson <', content);
     mqsh.publish(config.name + '/raw', content);
 
+    const ts = (new Date(content.time)).getTime();
+
     if (content.msg === 'ENVIRONMENTAL-CURRENT-SENSOR-DATA') {
 
     }
