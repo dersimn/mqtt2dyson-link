@@ -20,6 +20,8 @@ Tested with:
         -e "MQTT_HOST=host.docker.internal:9001" \
         dersimn/mqtt-smarthome-webui
 
+[![](docs/webui_600.png)](docs/webui.png)
+
 ## Debug
 
 Run Script:
@@ -30,7 +32,7 @@ Run Analyzer Script:
 
     node analyze --ip-address 10.1.1.242 --serial-number "" --password "" --product-type 358
 
-![](docs/analyze.png)
+[![](docs/analyze_600.png)](docs/analyze.png)
 
 Docker Hub deploy:
 
