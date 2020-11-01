@@ -179,11 +179,103 @@ dysonClient.on('message', (topic, payload) => {
     const ts = (new Date(content.time)).getTime();
 
     if (content.msg === 'ENVIRONMENTAL-CURRENT-SENSOR-DATA') {
+        const rawTemperature = content.data?.tact;
+        if (rawTemperature) {
+            mqsh.publish(config.name + '/status/temperature', {
+                val: (Number.parseInt(rawTemperature, 10) / 10) - 273.15,
+                unit: '°C',
+                settable: false,
+                ts
+            }, {retain: true});
+        }
 
+        const rawHumidity = content.data?.hact;
+        if (rawHumidity) {
+            mqsh.publish(config.name + '/status/humidity', {
+                val: Number.parseInt(rawHumidity, 10),
+                unit: '%',
+                range: {min: 0, max: 100, steps: 1},
+                settable: false,
+                ts
+            }, {retain: true});
+        }
+
+        if (productCapabilities[config.productType].hasAdvancedAirQualitySensors) {
+            try {
+                mqsh.publish(config.name + '/status/air-quality/pm25', {
+                    val: Number.parseInt(content.data?.pm25, 10),
+                    unit: 'µg/m³',
+                    ts
+                }, {retain: true});
+            } catch (error) {
+                log.error(error);
+            }
+
+            try {
+                mqsh.publish(config.name + '/status/air-quality/pm10', {
+                    val: Number.parseInt(content.data?.pm10, 10),
+                    unit: 'µg/m³',
+                    ts
+                }, {retain: true});
+            } catch (error) {
+                log.error(error);
+            }
+
+            try {
+                mqsh.publish(config.name + '/status/air-quality/va10', {
+                    val: Number.parseInt(content.data?.va10, 10),
+                    ts
+                }, {retain: true});
+            } catch (error) {
+                log.error(error);
+            }
+
+            try {
+                mqsh.publish(config.name + '/status/air-quality/noxl', {
+                    val: Number.parseInt(content.data?.noxl, 10),
+                    ts
+                }, {retain: true});
+            } catch (error) {
+                log.error(error);
+            }
+        }
     }
 
     if (content.msg === 'CURRENT-STATE') {
+        try {
+            const fanEnabled = content['product-state']?.fpwr === 'ON';
+            const fanActualState = content['product-state']?.fnst === 'FAN';
+            const rawFanSpeed = content['product-state']?.fnsp;
 
+            mqsh.publish(config.name + '/status/fan', {
+                val: fanEnabled && fanActualState,
+                speed: {
+                    val: (rawFanSpeed === 'AUTO') ? 0 : Number.parseInt(rawFanSpeed, 10),
+                    enum: ['AUTO', ...Array.from({length: 10}, (v, k) => k + 1)]
+                },
+                ts
+            }, {retain: true});
+        } catch (error) {
+            log.error(error);
+        }
+
+        try {
+            mqsh.publish(config.name + '/status/auto-mode/purify', {
+                val: content['product-state']?.auto === 'ON',
+                ts
+            }, {retain: true});
+        } catch (error) {
+            log.error(error);
+        }
+
+        try {
+            mqsh.publish(config.name + '/status/auto-mode/humidify', {
+                val: content['product-state']?.haut === 'ON',
+                ts
+            }, {retain: true});
+        } catch (error) {
+            log.error(error);
+        }
     }
 
     if (content.msg === 'STATE-CHANGE') {
