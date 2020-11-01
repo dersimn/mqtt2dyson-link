@@ -45,13 +45,6 @@ log.info(pkg.name + ' ' + pkg.version + ' starting');
 log.debug('loaded config:', config);
 log.debug('ENV Prefix:', environmentVariablesPrefix);
 
-let model;
-let hardwareRevision;
-let hasHeating;
-let hasHumidifier;
-let hasJetFocus;
-let hasAdvancedAirQualitySensors;
-
 const productCapabilities = {
     358: {
         modelName: 'Dyson Pure Humidify+Cool',
