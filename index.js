@@ -52,49 +52,75 @@ let hasHumidifier;
 let hasJetFocus;
 let hasAdvancedAirQualitySensors;
 
-switch (config.productType) {
-    case 358:
-        model = 'Dyson Pure Humidify+Cool';
-        hardwareRevision = 'PH01';
-        hasAdvancedAirQualitySensors = true;
-        hasHumidifier = true;
-        hasJetFocus = true;
-        break;
-    case 438:
-        model = 'Dyson Pure Cool Tower';
-        hardwareRevision = 'TP04';
-        hasJetFocus = true;
-        hasAdvancedAirQualitySensors = true;
-        break;
-    case 455:
-        model = 'Dyson Pure Hot+Cool Link';
-        hardwareRevision = 'HP02';
-        hasHeating = true;
-        hasJetFocus = true;
-        break;
-    case 469:
-        model = 'Dyson Pure Cool Link Desk';
-        hardwareRevision = 'DP01';
-        break;
-    case 475:
-        model = 'Dyson Pure Cool Link Tower';
-        hardwareRevision = 'TP02';
-        break;
-    case 520:
-        model = 'Dyson Pure Cool Desk';
-        hardwareRevision = 'DP04';
-        hasJetFocus = true;
-        hasAdvancedAirQualitySensors = true;
-        break;
-    case 527:
-        model = 'Dyson Pure Hot+Cool';
-        hardwareRevision = 'HP04';
-        hasJetFocus = true;
-        hasAdvancedAirQualitySensors = true;
-        hasHeating = true;
-        break;
-    default:
-        process.exit(1);
+const productCapabilities = {
+    358: {
+        modelName: 'Dyson Pure Humidify+Cool',
+        hardwareRevision: 'PH01',
+        hasBasicAirQualitySensors: false,
+        hasAdvancedAirQualitySensors: true,
+        hasHumidifier: true,
+        hasJetFocus: true,
+        hasHeating: false
+    },
+    438: {
+        modelName: 'Dyson Pure Cool Tower',
+        hardwareRevision: 'TP04',
+        hasBasicAirQualitySensors: false,
+        hasAdvancedAirQualitySensors: true,
+        hasHumidifier: false,
+        hasJetFocus: true,
+        hasHeating: false
+    },
+    455: {
+        modelName: 'Dyson Pure Hot+Cool Link',
+        hardwareRevision: 'HP02',
+        hasBasicAirQualitySensors: false,
+        hasAdvancedAirQualitySensors: false,
+        hasHumidifier: false,
+        hasJetFocus: true,
+        hasHeating: true
+    },
+    469: {
+        modelName: 'Dyson Pure Cool Link Desk',
+        hardwareRevision: 'DP01',
+        hasBasicAirQualitySensors: false,
+        hasAdvancedAirQualitySensors: false,
+        hasHumidifier: false,
+        hasJetFocus: false,
+        hasHeating: false
+    },
+    475: {
+        modelName: 'Dyson Pure Cool Link Tower',
+        hardwareRevision: 'TP02',
+        hasBasicAirQualitySensors: false,
+        hasAdvancedAirQualitySensors: false,
+        hasHumidifier: false,
+        hasJetFocus: false,
+        hasHeating: false
+    },
+    520: {
+        modelName: 'Dyson Pure Cool Desk',
+        hardwareRevision: 'DP04',
+        hasBasicAirQualitySensors: false,
+        hasAdvancedAirQualitySensors: true,
+        hasHumidifier: false,
+        hasJetFocus: true,
+        hasHeating: false
+    },
+    527: {
+        modelName: 'Dyson Pure Hot+Cool',
+        hardwareRevision: 'HP04',
+        hasBasicAirQualitySensors: false,
+        hasAdvancedAirQualitySensors: true,
+        hasHumidifier: false,
+        hasJetFocus: true,
+        hasHeating: true
+    }
+};
+
+if (!Object.keys(productCapabilities).includes(String(config.productType))) {
+    log.error(`Product Type '${config.productType}' is currently not supported. Supported devices are:`, Object.keys(productCapabilities));
+    process.exit(1);
 }
 
 const mqsh = new MqttSmarthome(config.mqttUrl, {
@@ -148,6 +174,7 @@ dysonClient.on('end', () => {
 dysonClient.on('message', (topic, payload) => {
     const content = JSON.parse(payload);
     log.debug('dyson <', content);
+    mqsh.publish(config.name + '/raw', content);
 
     if (content.msg === 'ENVIRONMENTAL-CURRENT-SENSOR-DATA') {
 
