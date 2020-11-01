@@ -1,5 +1,5 @@
 {
-  "name": "mqtt2dyson",
+  "name": "mqtt2dyson-link",
   "version": "0.0.1",
   "description": "",
   "main": "index.js",
