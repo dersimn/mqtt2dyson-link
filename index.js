@@ -177,6 +177,7 @@ mqsh.on('connect', () => {
         }
     });
     mqsh.subscribe(config.name + '/set/fan/swing/mode', (_, input) => {
+        // Automatically sets fan/direction to Front
         sendCommand({
             ancp: mapValue(input, [
                 {out: '0045', in: 0},
