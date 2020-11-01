@@ -133,34 +133,81 @@ mqsh.on('connect', () => {
     mqsh.publish(config.name + '/maintenance/online', true, {retain: true});
 
     mqsh.subscribe(config.name + '/set/fan/enabled', (_, input) => {
-        const data = {
+        sendCommand({
             fpwr: input ? 'ON' : 'OFF'
-        };
-
-        log.debug('dyson >', data);
-
-        dysonClient.publish(config.productType + '/' + config.serialNumber + '/command', JSON.stringify({
-            msg: 'STATE-SET',
-            time: new Date().toISOString(),
-            data
-        }));
+        });
+    });
+    mqsh.subscribe(config.name + '/set/fan/speed', (_, input) => {
+        if (input === 0) {
+            sendCommand({
+                auto: 'ON'
+            });
+        } else {
+            sendCommand({
+                fnsp: mapValue(input, [
+                    {in: {min: 1, max: 10}, out: input => String(input).padStart(4, '0')}
+                ])
+            });
+        }
+    });
+    mqsh.subscribe(config.name + '/set/fan/night-mode', (_, input) => {
+        sendCommand({
+            nmod: input ? 'ON' : 'OFF'
+        });
     });
 
-    mqsh.subscribe(config.name + '/set/fan/speed', (_, input) => {
-        const data = {
-            fnsp: mapValue(input, [
-                {in: 0, out: 'AUTO'},
-                {in: {min: 1, max: 10}, out: input => String(input).padStart(4, '0')}
+    mqsh.subscribe(config.name + '/set/fan/direction', (_, input) => {
+        sendCommand({
+            fdir: mapValue(input, [
+                {in: 1, out: 'ON'},
+                {in: 0, out: 'OFF'}
             ])
-        };
+        });
+    });
+    mqsh.subscribe(config.name + '/set/fan/swing/enabled', (_, input) => {
+        if (input) {
+            sendCommand({
+                fdir: 'ON',
+                oson: 'ON'
+            });
+        } else {
+            sendCommand({
+                oson: 'OFF'
+            });
+        }
+    });
+    mqsh.subscribe(config.name + '/set/fan/swing/mode', (_, input) => {
+        sendCommand({
+            ancp: mapValue(input, [
+                {out: '0045', in: 0},
+                {out: '0090', in: 1},
+                {out: 'BRZE', in: 2}
+            ])
+        });
+    });
 
-        log.debug('dyson >', data);
+    mqsh.subscribe(config.name + '/set/purify/auto-mode', (_, input) => {
+        sendCommand({
+            auto: input ? 'ON' : 'OFF'
+        });
+    });
 
-        dysonClient.publish(config.productType + '/' + config.serialNumber + '/command', JSON.stringify({
-            msg: 'STATE-SET',
-            time: new Date().toISOString(),
-            data
-        }));
+    mqsh.subscribe(config.name + '/set/humidify/enabled', (_, input) => {
+        sendCommand({
+            hume: input ? 'HUMD' : 'OFF'
+        });
+    });
+    mqsh.subscribe(config.name + '/set/humidify/auto-mode', (_, input) => {
+        sendCommand({
+            haut: input ? 'ON' : 'OFF'
+        });
+    });
+    mqsh.subscribe(config.name + '/set/humidify/target', (_, input) => {
+        sendCommand({
+            humt: mapValue(input, [
+                {in: {min: 30, max: 70}, out: input => String(input).padStart(4, '0')}
+            ])
+        });
     });
 });
 
@@ -287,29 +334,6 @@ dysonClient.on('message', (topic, payload) => {
 function processIncomingMessage(input, ts = Date.now()) {
     const fanEnabled = input.fpwr === 'ON';
     const fanActualState = input.fnst === 'FAN';
-    const fanNightMode = input.nmod === 'ON';
-
-    const flowDirection = mapValue(input.fdir, [
-        {in: 'ON', out: 1},
-        {in: 'OFF', out: 0}
-    ]);
-    const oscillatorEnabled = mapValue(input.oson, [
-        {in: 'ON', out: true},
-        {in: 'OFF', out: false},
-        {in: 'OION', out: true},
-        {in: 'OIOF', out: false}
-    ]);
-    const oscillatorActualState = mapValue(input.oscs, [
-        {in: 'ON', out: 1},
-        {in: 'OFF', out: 0},
-        {in: 'IDLE', out: 2}
-    ]);
-    const oscillatorMode = mapValue(input.ancp, [
-        {in: '45', out: 0},
-        {in: '90', out: 1},
-        {in: 'BRZE', out: 2}
-    ]);
-
     const rawFanSpeed = input.fnsp;
 
     mqsh.publish(config.name + '/status/fan/enabled', {
@@ -326,26 +350,42 @@ function processIncomingMessage(input, ts = Date.now()) {
         ts
     }, {retain: true});
     mqsh.publish(config.name + '/status/fan/night-mode', {
-        val: fanNightMode,
+        val: input.nmod === 'ON',
         ts
     }, {retain: true});
 
     mqsh.publish(config.name + '/status/fan/direction', {
-        val: flowDirection,
+        val: mapValue(input.fdir, [
+            {in: 'ON', out: 1},
+            {in: 'OFF', out: 0}
+        ]),
         enum: ['Back', 'Front'],
         ts
     }, {retain: true});
     mqsh.publish(config.name + '/status/fan/swing/enabled', {
-        val: oscillatorEnabled,
+        val: mapValue(input.oson, [
+            {in: 'ON', out: true},
+            {in: 'OFF', out: false},
+            {in: 'OION', out: true},
+            {in: 'OIOF', out: false}
+        ]),
         ts
     }, {retain: true});
     mqsh.publish(config.name + '/status/fan/swing/actual-state', {
-        val: oscillatorActualState,
+        val: mapValue(input.oscs, [
+            {in: 'ON', out: 1},
+            {in: 'OFF', out: 0},
+            {in: 'IDLE', out: 2}
+        ]),
         enum: ['Off', 'On', 'Idle'],
         ts
     }, {retain: true});
     mqsh.publish(config.name + '/status/fan/swing/mode', {
-        val: oscillatorMode,
+        val: mapValue(input.ancp, [
+            {in: '0045', out: 0},
+            {in: '0090', out: 1},
+            {in: 'BRZE', out: 2}
+        ]),
         enum: ['45°', '90°', 'Breeze'],
         ts
     }, {retain: true});
@@ -386,10 +426,20 @@ function processIncomingMessage(input, ts = Date.now()) {
     }, {retain: true});
 }
 
+function sendCommand(data) {
+    log.debug('dyson >', data);
+
+    dysonClient.publish(config.productType + '/' + config.serialNumber + '/command', JSON.stringify({
+        msg: 'STATE-SET',
+        time: new Date().toISOString(),
+        data
+    }));
+}
+
 function mapValue(input, range) {
     for (const candidate of range) {
         if (typeof candidate.in === 'object') {
-            if ((input >= candidate.in.min) && (input < candidate.in.max)) {
+            if ((input >= candidate.in.min) && (input <= candidate.in.max)) {
                 return (typeof candidate.out === 'function') ? candidate.out(input) : candidate.out;
             }
         } else if (input === candidate.in) {
