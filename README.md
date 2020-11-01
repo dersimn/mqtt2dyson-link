@@ -30,10 +30,16 @@ Run Analyzer Script:
 
     node analyze --ip-address 10.1.1.242 --serial-number "" --password "" --product-type 358
 
+![](docs/analyze.png)
+
 Docker Hub deploy:
 
     docker buildx create --name mybuilder
     docker buildx use mybuilder
     docker buildx build --platform linux/amd64,linux/arm/v7 -t dersimn/mqtt2dyson-link -t dersimn/mqtt2dyson-link:0.0.1 --push .
 
-![](docs/analyze.png)
+## Credits
+
+- [libpurecoollink](http://github.com/CharlesBlonde/libpurecoollink)
+- [homebridge-dyson-link](https://github.com/joe-ng/homebridge-dyson-link)
+- [homebridge-dyson-pure-cool](https://github.com/lukasroegner/homebridge-dyson-pure-cool)
