@@ -147,12 +147,19 @@ mqsh.on('connect', () => {
     });
 
     mqsh.subscribe(config.name + '/set/fan/speed', (_, input) => {
+        const data = {
+            fnsp: mapValue(input, [
+                {in: 0, out: 'AUTO'},
+                {in: {min: 1, max: 10}, out: input => String(input).padStart(4, '0')}
+            ])
+        };
+
+        log.debug('dyson >', data);
+
         dysonClient.publish(config.productType + '/' + config.serialNumber + '/command', JSON.stringify({
             msg: 'STATE-SET',
             time: new Date().toISOString(),
-            data: {
-                fpwr: input ? 'ON' : 'OFF'
-            }
+            data
         }));
     });
 });
@@ -383,10 +390,10 @@ function mapValue(input, range) {
     for (const candidate of range) {
         if (typeof candidate.in === 'object') {
             if ((input >= candidate.in.min) && (input < candidate.in.max)) {
-                return candidate.out;
+                return (typeof candidate.out === 'function') ? candidate.out(input) : candidate.out;
             }
         } else if (input === candidate.in) {
-            return candidate.out;
+            return (typeof candidate.out === 'function') ? candidate.out(input) : candidate.out;
         }
     }
 }
