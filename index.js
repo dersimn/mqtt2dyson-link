@@ -4,7 +4,6 @@ const pkg = require('./package.json');
 const log = require('yalm');
 const MqttSmarthome = require('mqtt-smarthome-connect');
 const Mqtt = require('mqtt');
-const shortid = require('shortid');
 
 const environmentVariablesPrefix = pkg.name.replace(/[^a-zA-Z\d]/, '_').toUpperCase();
 const config = require('yargs')
