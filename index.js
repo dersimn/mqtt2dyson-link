@@ -207,6 +207,9 @@ mqsh.on('connect', () => {
     });
 });
 
+log.debug('mqsh > connect', config.mqttUrl);
+mqsh.connect();
+
 const dysonClient = Mqtt.connect('mqtt://' + config.ipAddress, {
     username: config.serialNumber,
     password: config.password,
@@ -224,9 +227,6 @@ const pollingTimer = new Yatl.Timer(() => {
 
 dysonClient.on('connect', () => {
     log.info('dyson < connected');
-
-    log.debug('mqsh > connect', config.mqttUrl);
-    mqsh.connect();
 
     // Subscribes to the status topic to receive updates
     dysonClient.subscribe(config.productType + '/' + config.serialNumber + '/status/current', () => {
