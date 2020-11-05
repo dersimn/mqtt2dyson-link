@@ -303,6 +303,26 @@ dysonClient.on('message', (topic, payload) => {
             }
 
             try {
+                mqsh.publish(config.name + '/status/air-quality/p25r', {
+                    val: Number.parseInt(content.data?.p25r, 10),
+                    unit: 'µg/m³',
+                    ts
+                }, {retain: true});
+            } catch (error) {
+                log.error(error);
+            }
+
+            try {
+                mqsh.publish(config.name + '/status/air-quality/p10r', {
+                    val: Number.parseInt(content.data?.p10r, 10),
+                    unit: 'µg/m³',
+                    ts
+                }, {retain: true});
+            } catch (error) {
+                log.error(error);
+            }
+
+            try {
                 mqsh.publish(config.name + '/status/air-quality/va10', {
                     val: Number.parseInt(content.data?.va10, 10),
                     ts
