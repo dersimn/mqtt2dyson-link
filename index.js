@@ -229,6 +229,8 @@ const pollingTimer = new Yatl.Timer(() => {
 dysonClient.on('connect', () => {
     log.info('dyson < connected');
 
+    mqsh.publish(config.name + '/maintenance/online/fan', true, {retain: true});
+
     // Subscribes to the status topic to receive updates
     dysonClient.subscribe(config.productType + '/' + config.serialNumber + '/status/current', () => {
         // Sends an initial request for the current state
@@ -238,22 +240,27 @@ dysonClient.on('connect', () => {
 dysonClient.on('error', error => {
     log.error('dyson -', error);
     pollingTimer.stop();
+    mqsh.publish(config.name + '/maintenance/online/fan', false, {retain: true});
 });
 dysonClient.on('reconnect', () => {
     log.debug('dyson - reconnect');
     pollingTimer.stop();
+    mqsh.publish(config.name + '/maintenance/online/fan', false, {retain: true});
 });
 dysonClient.on('close', () => {
     log.debug('dyson - close');
     pollingTimer.stop();
+    mqsh.publish(config.name + '/maintenance/online/fan', false, {retain: true});
 });
 dysonClient.on('offline', () => {
     log.debug('dyson - offline');
     pollingTimer.stop();
+    mqsh.publish(config.name + '/maintenance/online/fan', false, {retain: true});
 });
 dysonClient.on('end', () => {
     log.debug('dyson - end');
     pollingTimer.stop();
+    mqsh.publish(config.name + '/maintenance/online/fan', false, {retain: true});
 });
 dysonClient.on('message', (topic, payload) => {
     const content = JSON.parse(payload);
