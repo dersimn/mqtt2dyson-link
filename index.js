@@ -153,6 +153,7 @@ mqsh.on('connect', () => {
 
     mqsh.subscribe(config.name + '/set/fan/direction', (_, input) => {
         sendCommand({
+            fpwr: 'ON', // Turn On. Otherwise it grinds the gears to death.
             fdir: mapValue(input, [
                 {in: 1, out: 'ON'},
                 {in: 0, out: 'OFF'}
