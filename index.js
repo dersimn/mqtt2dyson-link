@@ -221,9 +221,22 @@ const dysonClient = Mqtt.connect('mqtt://' + config.ipAddress, {
 log.debug('dyson > connect');
 
 const pollingTimer = new Yatl.Timer(() => {
+    const timeString = new Date().toISOString();
+
     dysonClient.publish(config.productType + '/' + config.serialNumber + '/command', JSON.stringify({
-        msg: 'REQUEST-CURRENT-STATE',
-        time: new Date().toISOString()
+        'mode-reason': 'LAPP',
+        time: timeString,
+        msg: 'REQUEST-CURRENT-STATE'
+    }));
+    dysonClient.publish(config.productType + '/' + config.serialNumber + '/command', JSON.stringify({
+        'mode-reason': 'LAPP',
+        time: timeString,
+        msg: 'REQUEST-PRODUCT-ENVIRONMENT-CURRENT-SENSOR-DATA'
+    }));
+    dysonClient.publish(config.productType + '/' + config.serialNumber + '/command', JSON.stringify({
+        'mode-reason': 'LAPP',
+        time: timeString,
+        msg: 'REQUEST-CURRENT-FAULTS'
     }));
 }, config.pollingInterval * 1000);
 
@@ -232,11 +245,13 @@ dysonClient.on('connect', () => {
 
     mqsh.publish(config.name + '/maintenance/online/fan', true, {retain: true});
 
-    // Subscribes to the status topic to receive updates
-    dysonClient.subscribe(config.productType + '/' + config.serialNumber + '/status/current', () => {
-        // Sends an initial request for the current state
-        pollingTimer.restart().exec();
-    });
+    // Subscribes to the status topic to receive updates. Subscribing # doesn't work.
+    dysonClient.subscribe(config.productType + '/' + config.serialNumber + '/status/current');
+    dysonClient.subscribe(config.productType + '/' + config.serialNumber + '/status/faults');
+    dysonClient.subscribe(config.productType + '/' + config.serialNumber + '/status/connection');
+    dysonClient.subscribe(config.productType + '/' + config.serialNumber + '/status/software');
+
+    pollingTimer.restart().exec();
 });
 dysonClient.on('error', error => {
     log.error('dyson -', error);
