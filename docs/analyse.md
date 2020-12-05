@@ -136,5 +136,109 @@ Unkown:
 - `cdrr`: 
 - `psta`: 
 
+### Faults
+
+"product-errors":
+
+- `amf1`: 
+- `amf2`: 
+- `amf3`: 
+- `amf4`: 
+- `amf5`: 
+- `amf6`: 
+- `amf7`: 
+- `amf8`: 
+- `amf9`: 
+- `com4`: 
+- `com1`: 
+- `iuh0`: 
+- `iup0`: 
+- `iuw0`: 
+- `iuh1`: 
+- `iuu1`: 
+- `iuc1`: 
+- `iuw1`: 
+- `iua1`: 
+- `iuh2`: 
+- `iuu2`: 
+- `iuc2`: 
+- `iuw2`: 
+- `iua2`: 
+- `iuh4`: 
+- `iuu4`: 
+- `iuc4`: 
+- `iuw4`: 
+- `iua4`: 
+- `ui01`: 
+- `ui02`: Almost everytime on "FAIL" on my device..
+- `ui03`: 
+- `uid1`: 
+- `uid2`: 
+- `fs01`: 
+- `fs02`: 
+- `fs03`: 
+- `fs04`: 
+- `fs05`: 
+- `fs06`: 
+- `fs07`: 
+- `fs08`: 
+- `fs09`: 
+- `fs0a`: 
+- `fs0b`: 
+- `fs0c`: 
+- `psu1`: 
+- `psu2`: 
+- `sen1`: 
+- `sen2`: 
+- `sen3`: 
+- `sen4`: 
+- `com5`: 
+- `com2`: 
+- `com9`: 
+- `coma`: 
+- `bosl`: 
+- `bosr`: 
+- `etws`: 
+- `wpmp`: 
+- `prot`: 
+- `uled`: 
+
+
+"product-warnings":
+
+- `fltr`: 
+- `tnke`: Tank empty
+- `tnkp`: Tank removed (for refill) - both errors just disappear when you reinsert a full tank.
+- `cldu`: 
+- `etwd`: 
+
+
+"module-errors":
+
+- `szme`: 
+- `szmw`: 
+- `szps`: 
+- `szpe`: 
+- `szpw`: 
+- `szed`: 
+- `lspd`: 
+- `szpi`: 
+- `szpp`: 
+- `szhv`: 
+- `szbv`: 
+- `szav`: 
+
+
+"module-warnings":
+
+- `srnk`: 
+- `stac`: 
+- `strs`: 
+- `srmi`: 
+- `srmu`: 
+- `nwcs`: 
+- `nwts`: 
+- `nwps`: 
+- `nwss`: 
 
 [1]: https://github.com/lukasroegner/homebridge-dyson-pure-cool/blob/47d9ca02d3fad7fb0ec94e1a22d01cb6542db3cc/src/dyson-pure-cool-device.js#L440
