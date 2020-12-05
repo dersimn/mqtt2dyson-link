@@ -378,6 +378,28 @@ dysonClient.on('message', (topic, payload) => {
 
         processIncomingMessage(data, ts);
     }
+
+    if (content.msg === 'CURRENT-FAULTS') {
+        const keysOfInterest = new Set([
+            'product-errors',
+            'product-warnings',
+            'module-errors',
+            'module-warnings'
+        ]);
+
+        const result = {};
+
+        for (const category of Object.keys(content).filter(k => keysOfInterest.has(k))) {
+            for (const [datapoint, status] of Object.entries(content[category])) {
+                if (status !== 'OK') {
+                    result[category] = result[category] ?? {};
+                    result[category][datapoint] = status;
+                }
+            }
+        }
+
+        mqsh.publish(config.name + '/maintenance/faults', result, {retain: true});
+    }
 });
 
 function processIncomingMessage(input, ts = Date.now()) {
