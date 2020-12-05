@@ -266,7 +266,7 @@ dysonClient.on('end', () => {
 dysonClient.on('message', (topic, payload) => {
     const content = JSON.parse(payload);
     log.debug('dyson <', content);
-    mqsh.publish(config.name + '/raw', content);
+    mqsh.publish(config.name + '/raw', {topic, content});
 
     const ts = (new Date(content.time)).getTime();
 
