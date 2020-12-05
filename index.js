@@ -56,61 +56,62 @@ const productCapabilities = {
         hasHumidifier: true,
         hasJetFocus: true,
         hasHeating: false
-    },
-    438: {
-        modelName: 'Dyson Pure Cool Tower',
-        hardwareRevision: 'TP04',
-        hasBasicAirQualitySensors: false,
-        hasAdvancedAirQualitySensors: true,
-        hasHumidifier: false,
-        hasJetFocus: true,
-        hasHeating: false
-    },
-    455: {
-        modelName: 'Dyson Pure Hot+Cool Link',
-        hardwareRevision: 'HP02',
-        hasBasicAirQualitySensors: false,
-        hasAdvancedAirQualitySensors: false,
-        hasHumidifier: false,
-        hasJetFocus: true,
-        hasHeating: true
-    },
-    469: {
-        modelName: 'Dyson Pure Cool Link Desk',
-        hardwareRevision: 'DP01',
-        hasBasicAirQualitySensors: false,
-        hasAdvancedAirQualitySensors: false,
-        hasHumidifier: false,
-        hasJetFocus: false,
-        hasHeating: false
-    },
-    475: {
-        modelName: 'Dyson Pure Cool Link Tower',
-        hardwareRevision: 'TP02',
-        hasBasicAirQualitySensors: false,
-        hasAdvancedAirQualitySensors: false,
-        hasHumidifier: false,
-        hasJetFocus: false,
-        hasHeating: false
-    },
-    520: {
-        modelName: 'Dyson Pure Cool Desk',
-        hardwareRevision: 'DP04',
-        hasBasicAirQualitySensors: false,
-        hasAdvancedAirQualitySensors: true,
-        hasHumidifier: false,
-        hasJetFocus: true,
-        hasHeating: false
-    },
-    527: {
-        modelName: 'Dyson Pure Hot+Cool',
-        hardwareRevision: 'HP04',
-        hasBasicAirQualitySensors: false,
-        hasAdvancedAirQualitySensors: true,
-        hasHumidifier: false,
-        hasJetFocus: true,
-        hasHeating: true
     }
+    // ,
+    // 438: {
+    //     modelName: 'Dyson Pure Cool Tower',
+    //     hardwareRevision: 'TP04',
+    //     hasBasicAirQualitySensors: false,
+    //     hasAdvancedAirQualitySensors: true,
+    //     hasHumidifier: false,
+    //     hasJetFocus: true,
+    //     hasHeating: false
+    // },
+    // 455: {
+    //     modelName: 'Dyson Pure Hot+Cool Link',
+    //     hardwareRevision: 'HP02',
+    //     hasBasicAirQualitySensors: false,
+    //     hasAdvancedAirQualitySensors: false,
+    //     hasHumidifier: false,
+    //     hasJetFocus: true,
+    //     hasHeating: true
+    // },
+    // 469: {
+    //     modelName: 'Dyson Pure Cool Link Desk',
+    //     hardwareRevision: 'DP01',
+    //     hasBasicAirQualitySensors: false,
+    //     hasAdvancedAirQualitySensors: false,
+    //     hasHumidifier: false,
+    //     hasJetFocus: false,
+    //     hasHeating: false
+    // },
+    // 475: {
+    //     modelName: 'Dyson Pure Cool Link Tower',
+    //     hardwareRevision: 'TP02',
+    //     hasBasicAirQualitySensors: false,
+    //     hasAdvancedAirQualitySensors: false,
+    //     hasHumidifier: false,
+    //     hasJetFocus: false,
+    //     hasHeating: false
+    // },
+    // 520: {
+    //     modelName: 'Dyson Pure Cool Desk',
+    //     hardwareRevision: 'DP04',
+    //     hasBasicAirQualitySensors: false,
+    //     hasAdvancedAirQualitySensors: true,
+    //     hasHumidifier: false,
+    //     hasJetFocus: true,
+    //     hasHeating: false
+    // },
+    // 527: {
+    //     modelName: 'Dyson Pure Hot+Cool',
+    //     hardwareRevision: 'HP04',
+    //     hasBasicAirQualitySensors: false,
+    //     hasAdvancedAirQualitySensors: true,
+    //     hasHumidifier: false,
+    //     hasJetFocus: true,
+    //     hasHeating: true
+    // }
 };
 
 if (!Object.keys(productCapabilities).includes(String(config.productType))) {
