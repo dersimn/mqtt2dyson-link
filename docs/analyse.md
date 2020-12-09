@@ -200,7 +200,7 @@ Unkown:
 - `bosr`: 
 - `etws`: 
 - `wpmp`: 
-- `prot`: 
+- `prot`: App shows "Please run a deep clean cycle now"
 - `uled`: 
 
 
