@@ -38,13 +38,10 @@ dysonClient.on('connect', () => {
     log.info('dyson < connected');
 
     // Subscribes to the status topic to receive updates
-    dysonClient.subscribe(config.productType + '/' + config.serialNumber + '/status/current', () => {
-        // Sends an initial request for the current state
-        dysonClient.publish(config.productType + '/' + config.serialNumber + '/command', JSON.stringify({
-            msg: 'REQUEST-CURRENT-STATE',
-            time: new Date().toISOString()
-        }));
-    });
+    dysonClient.subscribe(config.productType + '/' + config.serialNumber + '/status/current');
+    dysonClient.subscribe(config.productType + '/' + config.serialNumber + '/status/faults');
+    dysonClient.subscribe(config.productType + '/' + config.serialNumber + '/status/connection');
+    dysonClient.subscribe(config.productType + '/' + config.serialNumber + '/status/software');
 });
 dysonClient.on('error', error => {
     log.error('dyson -', error);
@@ -76,6 +73,28 @@ dysonClient.on('message', (topic, payload) => {
         for (const [key, value] of Object.entries(content['product-state'])) {
             data[key] = value[1];
         }
+    }
+
+    if (content.msg === 'CURRENT-FAULTS') {
+        const keysOfInterest = new Set([
+            'product-errors',
+            'product-warnings',
+            'module-errors',
+            'module-warnings'
+        ]);
+
+        const result = {};
+
+        for (const category of Object.keys(content).filter(k => keysOfInterest.has(k))) {
+            for (const [datapoint, status] of Object.entries(content[category])) {
+                if (status !== 'OK') {
+                    result[category] = result[category] ?? {};
+                    result[category][datapoint] = status;
+                }
+            }
+        }
+
+        data.faults = result;
     }
 
     log.debug(data);

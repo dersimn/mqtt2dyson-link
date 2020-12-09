@@ -71,6 +71,60 @@ Only in `ENVIRONMENTAL-CURRENT-SENSOR-DATA`
         "sltm": "OFF"
     }
 
+### While running Deep Clean Cycle
+
+```json
+{
+    "msg": "CURRENT-STATE",
+    "time": "2020-12-09T16:57:35.000Z",
+    "mode-reason": "NONE",
+    "state-reason": "MODE",
+    "rssi": "-40",
+    "channel": "11",
+    "fqhp": "104968",
+    "fghp": "88944",
+    "product-state": {
+        "fpwr": "ON",
+        "auto": "ON",
+        "oscs": "IDLE",
+        "oson": "OFF",
+        "nmod": "OFF",
+        "rhtm": "ON",
+        "fnst": "OFF",
+        "ercd": "61R5",
+        "wacd": "NONE",
+        "nmdv": "0004",
+        "fnsp": "AUTO",
+        "bril": "0002",
+        "corf": "ON",
+        "cflr": "INV",
+        "hflr": "0087",
+        "cflt": "NONE",
+        "hflt": "GCOM",
+        "sltm": "OFF",
+        "osal": "0180",
+        "osau": "0180",
+        "ancp": "BRZE",
+        "hume": "HUMD",
+        "haut": "ON",
+        "humt": "0050",
+        "rect": "0045",
+        "msta": "OFF",
+        "clcr": "CLAC",
+        "cdrr": "0060",
+        "cltr": "0435",
+        "wath": "0675",
+        "psta": "CLNG",
+        "fdir": "OFF"
+    },
+    "scheduler": {
+        "srsc": "000000005f9ea6ce",
+        "dstv": "0001",
+        "tzid": "0001"
+    }
+}
+```
+
 ## Results
 
 Settings:
@@ -132,9 +186,9 @@ Unkown:
 - `osal`: 
 - `osau`: 
 - `rect`: 
-- `clcr`: 
+- `clcr`: CLAC while cleaning; CLIC after aborting
 - `cdrr`: 
-- `psta`: 
+- `psta`: "CLNG" while running Deep Clean Cycle and after aborting it
 
 ### Faults
 
