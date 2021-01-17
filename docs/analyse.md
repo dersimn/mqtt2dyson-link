@@ -170,7 +170,7 @@ Air Quality Sensor Data:
 Filter Maintenance:
 
 - `cflr`: INV
-- `hflr`: Remaining Filter Life: 0 … 100 (%)
+- `hflr`: “HEPA Filter Lifetime Remaining” 0 … 100 (%)
 - `cflt`: 
 - `hflt`: 
 - `cltr`: Deep Clean Cycle: int in hours ?
@@ -183,10 +183,15 @@ Unkown:
 - `nmdv`: 
 - `bril`: 
 - `corf`: 
-- `osal`: 
-- `osau`: 
+- `osal`: Oscilator direction: 180° is straight forward
+- `osau`: Oscilator direction: 180° is straight forward
 - `rect`: 
-- `clcr`: CLAC while cleaning; CLIC after aborting
+- `clcr`: Status of cleaning
+    - CLNO: Cleaning not active
+    - CLSE: Promt to fill in Citric Acid and stuff
+    - CLAC: “Clean Active”? After re-inserting tank, takes 60min
+    - CLCM: Promt to clean tank with fresh water
+    - CLNO: Cleaning finished
 - `cdrr`: 
 - `psta`: "CLNG" while running Deep Clean Cycle and after aborting it
 
@@ -290,9 +295,9 @@ Unkown:
 - `strs`: 
 - `srmi`: 
 - `srmu`: 
-- `nwcs`: 
+- `nwcs`: FAIL when Internet broke down (nw = network?)
 - `nwts`: 
-- `nwps`: 
-- `nwss`: 
+- `nwps`: FAIL when Internet broke down (nw = network?)
+- `nwss`: FAIL when Internet broke down (nw = network?)
 
 [1]: https://github.com/lukasroegner/homebridge-dyson-pure-cool/blob/47d9ca02d3fad7fb0ec94e1a22d01cb6542db3cc/src/dyson-pure-cool-device.js#L440
